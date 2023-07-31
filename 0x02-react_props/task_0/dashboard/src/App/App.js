@@ -1,20 +1,20 @@
-import logo from './holberton.jpg';
-import './App.css';
+import React from "react";
+import Notifications from "../Notifications/Notifications";
+import Header from "../Header/Header";
+import Login from "../Login/Login";
+import Footer from "../Footer/Footer";
+import "./App.css";
 
 function App() {
   return (
-    <div className='App'>
-      <header className='App-header'>
-        <img src={logo} alt='logo' />
-        <h1>School dashboard</h1>
-      </header>
-      <body className='App-body'>
-        <p>Login to access the full dashboard</p>
-      </body>
-      <footer className='App-footer'>
-        <p>Copyright 2020 - holberton School</p>
-      </footer>
-    </div>
+    <React.Fragment>
+      <Notifications />
+      <div className="App">
+        <Header />
+        <Login />
+        <Footer />
+      </div>
+    </React.Fragment>
   );
 }
 
