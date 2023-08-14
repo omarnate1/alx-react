@@ -105,4 +105,17 @@
     expect(wrapper.state().user.password).toBe('');
     expect(wrapper.state().user.isLoggedIn).toBe(false);
   });
+
+  it('verify that markNotificationAsRead removes notification from listNotifications in state', () => {
+    const wrapper = shallow(<App />);
+    wrapper.setState({
+      listNotifications: [
+        { id: 1, type: "default", value: "New course available" },
+        { id: 2, type: "urgent", value: "New resume available" },
+        { id: 3, type: "urgent", value: "New majors available" },
+      ]
+    });
+    wrapper.instance().markNotificationAsRead(2);
+    expect(wrapper.state().listNotifications).toEqual([])
+  })
  });
