@@ -125,9 +125,13 @@ describe("<App />", () => {
 });
 
 describe("Redux tests", () => {
-  it("verifies mapStateToProps returns the right object for isUserLoggedIn", () => {
-    const state = fromJS({ isUserLoggedIn: true });
+  it("verifies mapStateToProps returns the right object for isUserLoggedIn and isNotificationDrawerVisible", () => {
+    const state = fromJS({
+      isUserLoggedIn: true,
+      isNotificationDrawerVisible: true,
+    });
     const result = mapStateToProps(state);
     expect(result.isLoggedIn).toEqual(true);
+    expect(result.displayDrawer).toEqual(true);
   });
 });
