@@ -9,6 +9,9 @@ import CourseList from "../CourseList/CourseList";
 import { getLatestNotification } from "../utils/utils";
 import BodySectionWithMarginBottom from '../BodySection/BodySectionWithMarginBottom';
 import BodySection from "../BodySection/BodySection";
+import { user, logOut, AppContext } from "./AppContext";
+import { connect } from 'react-redux';
+
 
 
 const listCourses = [
@@ -17,11 +20,11 @@ const listCourses = [
   {id: 3, name: 'React', credit: 40}
 ]
 
-const listNotifications = [
-  {id: 1, type: 'default', value: 'New course available'},
-  {id: 2, type: 'urgent', value: 'New resume available'},
-  {id: 3, type: 'urgent', html: { __html: getLatestNotification() }}
-]
+// const listNotifications = [
+//   {id: 1, type: 'default', value: 'New course available'},
+//   {id: 2, type: 'urgent', value: 'New resume available'},
+//   {id: 3, type: 'urgent', html: { __html: getLatestNotification() }}
+// ]
 
 const styles = StyleSheet.create({
   app: {
@@ -39,6 +42,7 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     fontStyle: "italic",
+    fontSize: '1.2rem',
     width: "100%"
   }
 })
@@ -49,8 +53,18 @@ class App extends React.Component {
     this.handlePress = this.handlePress.bind(this)
     this.handleDisplayDrawer = this.handleDisplayDrawer.bind(this)
     this.handleHideDrawer = this.handleHideDrawer.bind(this)
+    this.logOut = this.logOut.bind(this)
+    this.logIn = this.logIn.bind(this)
+    this.markNotificationAsRead = this.markNotificationAsRead.bind(this)
     this.state = {
-      displayDrawer: false
+      displayDrawer: false,
+      user,
+      logOut: this.logOut,
+      listNotifications: [
+        {id: 1, type: 'default', value: 'New course available'},
+        {id: 2, type: 'urgent', value: 'New resume available'},
+        {id: 3, type: 'urgent', html: { __html: getLatestNotification() }}
+      ]
     }
   }
 
@@ -81,43 +95,74 @@ class App extends React.Component {
     })
   }
 
+  logIn(email, password) {
+    this.setState({
+      user: {
+        email,
+        password,
+        isLoggedIn: true
+      }
+    })
+  }
+
+  logOut() {
+    this.setState({
+      user
+    })
+  }
+
+  markNotificationAsRead(id) {
+    const newNotification = this.state.listNotifications.filter((not) => {
+      not.id !== id})
+    this.setState({
+      listNotifications: newNotification
+    })
+  }
+
   render () {
-    const { displayDrawer } = this.state
+    const { displayDrawer, listNotifications } = this.state
     return(  
-    <>
-      <Notifications listNotifications={listNotifications} displayDrawer={displayDrawer} handleDisplayDrawer={this.handleDisplayDrawer} handleHideDrawer={this.handleHideDrawer} />
+    <AppContext.Provider value={{user: this.state.user, logOut: this.state.logOut}}>
+      <Notifications listNotifications={listNotifications} displayDrawer={displayDrawer} 
+        handleDisplayDrawer={this.handleDisplayDrawer} handleHideDrawer={this.handleHideDrawer} 
+        markNotificationAsRead={this.markNotificationAsRead}
+        />
+      
       <div className={css(styles.app)}>
         <Header />
       </div>
+      
       <div className={css(styles.body, styles.bodySmall)}>
-        {!this.props.isLoggedIn ? 
+
+        {!this.state.user.isLoggedIn ? 
           <BodySectionWithMarginBottom title="Log in to continue">
-            <Login /> 
+            <Login logIn={this.logIn} /> 
           </BodySectionWithMarginBottom> : 
+          
           <BodySectionWithMarginBottom title="Course list">
             <CourseList listCourses={listCourses}/>
           </BodySectionWithMarginBottom>
         }
+
         <BodySection title="News from the School">
           <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Facere, temporibus. Totam, quis quo provident magni reprehenderit nulla eaque. A, illo?</p>
         </BodySection>
+
       </div>
+
       <div className={css(styles.footer)}>
         <Footer />
       </div>
-    </>
+
+    </AppContext.Provider>
     );
   }
 }
 
-App.defaultProps = {
-  isLoggedIn: false,
-  logOut: () => undefined
-};
+export const mapStateToProps = (state) => {
+  return {
+    isLoggedIn: state.get('isUserLoggedIn')
+  }
+}
 
-App.propTypes = {
-  isLoggedIn: PropTypes.bool,
-  logOut: PropTypes.func,
-};
-
-export default App;
+export default connect(mapStateToProps)(App);
